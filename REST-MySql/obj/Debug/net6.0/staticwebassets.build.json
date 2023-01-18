@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "TQOPA8Tdpema/4Mw79Sknan+BkIlXs1MHd4eONJy64U=",
+  "Source": "REST-MySql",
+  "BasePath": "_content/REST-MySql",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
