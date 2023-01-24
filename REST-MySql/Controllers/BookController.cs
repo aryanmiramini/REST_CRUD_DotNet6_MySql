@@ -4,13 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using REST_MySql.Models;
 using REST_MySql.Services;
 using Microsoft.AspNetCore.Mvc.Versioning;
-
+using System.ComponentModel.DataAnnotations;
 
 namespace REST_MySql.Controllers
 {
+
     [ApiController]
-    [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]  //only one for each controller
+    [Route("api/v{version:apiVersion}/[Controller]/[Action]")]
     public class BookController : ControllerBase
     {
 
@@ -18,21 +19,16 @@ namespace REST_MySql.Controllers
         public BookController(MyDbContext myDbContext)
         {
             _myDbContext = myDbContext;
-            _myDbContext.Database.EnsureCreated();
         }
-        [MapToApiVersion("1.0")]
-        [HttpGet]
 
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks()
-        {
+        {         
             return await _myDbContext.Books.ToListAsync();
 
         }
 
-        [MapToApiVersion("1.0")]
-        [HttpGet("{id}")]
-        [Route("GetBookById")]
-
+        [HttpGet]
         public async Task<ActionResult> GetBookById(int id)
         {
             var book = await _myDbContext.Books.FindAsync(id);
@@ -45,9 +41,8 @@ namespace REST_MySql.Controllers
 
 
         }
-        [MapToApiVersion("1.0")]
-        [HttpPost]
 
+        [HttpPost]
         public async Task<ActionResult<Book>> PostProduct(Book book)
         {
             _myDbContext.Books.Add(book);
@@ -59,8 +54,7 @@ namespace REST_MySql.Controllers
                 book);
         }
 
-        [MapToApiVersion("1.0")]
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<ActionResult> UpdateBook(int id, Book book)
         {
             var bookToBeUpdate = await _myDbContext.Books.FindAsync(id);
@@ -75,10 +69,7 @@ namespace REST_MySql.Controllers
             return NotFound();
 
         }
-        [MapToApiVersion("1.0")]
-        [HttpDelete("{id}")]
-        [Route("DeleteById")]
-
+        [HttpDelete]
         public async Task<ActionResult<Book>> DeleteBook(int id)
         {
             var book = await _myDbContext.Books.FindAsync(id);
@@ -93,32 +84,49 @@ namespace REST_MySql.Controllers
             return book;
         }
 
-        [MapToApiVersion("1.0")]
+
         [HttpPost]
-        [Route("Delete")]
         public async Task<ActionResult> DeleteMultipleBooks([FromQuery] int[] ids)
         {
             var books = new List<Book>();
             foreach (var id in ids)
             {
-                var book = await _myDbContext.Books.FindAsync(id);
+                var bookToBeDeleted = await _myDbContext.Books.FindAsync(id);
 
-                if (book == null)
+                if (bookToBeDeleted == null)
                 {
                     return NotFound();
                 }
 
-                books.Add(book);
+                books.Add(bookToBeDeleted);
             }
 
             _myDbContext.Books.RemoveRange(books);
             await _myDbContext.SaveChangesAsync();
 
             return Ok(books);
+
+
+
         }
 
+        [HttpPost]
+        public ActionResult DeleteAll()
+        {
+            IEnumerable<Book> bookList = _myDbContext.Books.Where(i => i.Id != null);
+            foreach (var Item in bookList)
+            {
 
+                _myDbContext.Books.Remove(Item);
+            }
 
+            _myDbContext.SaveChanges();
+            return Ok();
+
+        }
     }
 
+
 }
+
+
